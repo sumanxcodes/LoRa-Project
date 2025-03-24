@@ -27,6 +27,16 @@ void xorCipher(uint8_t* data, int length) {
   }
 }
 
+// A simple hashing algorithm for integrity of the payload during trasmission
+uint8_t simpleChecksum(uint8_t* data, int length) {
+  uint8_t hash = 0;
+  for (int i = 0; i < length; i++) {
+    hash ^= data[i]; // XOR every byte
+  }
+  return hash;
+}
+
+
 void setup()
 {
   Serial.begin(9600);
@@ -73,9 +83,17 @@ void loop()
   Serial.println();
 
 
+  // ✅ Compute hash of encrypted payload
+  uint8_t hash = simpleChecksum(payload, 10);
+  payload[10] = hash; // Store at the end
+
+  Serial.print("Checksum (hash): 0x");
+  Serial.println(hash, HEX); 
+
+
   // Send the packet
   digitalWrite(led, HIGH);
-  rf95.send(payload, sizeof(payload));  // Send 10-byte payload
+  rf95.send(payload, sizeof(payload)+1);  // Send 10-byte payload + 1 for the hash
   rf95.waitPacketSent();
   digitalWrite(led, LOW);
 
