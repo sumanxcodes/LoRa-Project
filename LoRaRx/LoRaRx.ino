@@ -35,19 +35,20 @@ void loop() {
     if (len >= 10) {
       uint32_t receivedSenderKey;
       uint32_t receivedReceiverKey;
-      uint16_t receivedCount;
+      uint16_t co2;
 
       // Parse payload from buffer
       memcpy(&receivedSenderKey,    &buf[0], 4); // Sender's student ID
       memcpy(&receivedReceiverKey,  &buf[4], 4); // Intended receiver ID
-      memcpy(&receivedCount,        &buf[8], 2); // Message counter
+      memcpy(&co2,        &buf[8], 2); // Message counter
 
       // Validate sender and intended receiver
       if (receivedSenderKey == senderKey && receivedReceiverKey == receiverKey) {
         Serial.print("✅ Valid Msg! From: ");
         Serial.print(receivedSenderKey);
-        Serial.print(" | Msg #: ");
-        Serial.println(receivedCount);
+        Serial.print(" | CO2 Emission #: ");
+        Serial.print(co2);
+        Serial.println(" µmol/m²/s");
         digitalWrite(led, HIGH);
       } else {
         Serial.print("⚠ Unauthorized. From: ");
