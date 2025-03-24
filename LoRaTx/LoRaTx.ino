@@ -10,11 +10,21 @@ uint16_t messageCount = 0;            // Counter for messages
 
 int led = 13; // Onboard LED for activity indication
 
+const char key[] = "sumanrajsharma101240771"; // Hardcoded key
+const int keyLength = sizeof(key) - 1; // Exclude null-terminator
+
 // a simple random function that generate dummy C02 emissiond data
 int16_t randomCO2EmissionData() {
   // simulating CO2 emissions in µmol/m²/s (based on Flux tower date found in internet)
   // Range: -200 (uptake) to 1000 (high emission)
   return random(-200, 1000);
+}
+
+// Encrypts or decrypts data in-place
+void xorCipher(uint8_t* data, int length) {
+  for (int i = 0; i < length; i++) {
+    data[i] ^= key[i % keyLength]; // XOR each byte with repeating key
+  }
 }
 
 void setup()
@@ -52,6 +62,16 @@ void loop()
   Serial.print(" | CO2 Emission: ");
   Serial.print(co2);
   Serial.println(" µmol/m²/s");
+
+  // Encrypt payload before sending
+  xorCipher(payload, sizeof(payload));
+  Serial.print("Encrypted payload: ");
+  for (int i = 0; i < sizeof(payload); i++) {
+    Serial.print(payload[i], HEX);
+    Serial.print(" ");
+  }
+  Serial.println();
+
 
   // Send the packet
   digitalWrite(led, HIGH);

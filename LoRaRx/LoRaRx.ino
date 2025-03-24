@@ -9,6 +9,17 @@ uint32_t receiverKey = 101240771;
 
 int led = 13;
 
+
+const char key[] = "sumanrajsharma101240771"; // Hardcoded key
+const int keyLength = sizeof(key) - 1; // Exclude null-terminator
+
+// Encrypts or decrypts data in-place
+void xorCipher(uint8_t* data, int length) {
+  for (int i = 0; i < length; i++) {
+    data[i] ^= key[i % keyLength]; // XOR each byte with repeating key
+  }
+}
+
 void setup() {
   Serial.begin(9600);
   pinMode(led, OUTPUT);  // LED to show successful reception
@@ -30,6 +41,16 @@ void loop() {
   if (rf95.recv(buf, &len)) {
     Serial.print("📦 Received packet length: ");
     Serial.println(len);
+
+    Serial.print("Encrypted payload: ");
+    for (int i = 0; i < len; i++) {
+      Serial.print(buf[i], HEX);
+      Serial.print(" ");
+    }
+    Serial.println();
+
+    // Decrypt the received buffer befor parsing..
+    xorCipher(buf, len);
 
     // Expecting 10 bytes: [senderKey (4)][receiverKey (4)][msgCount (2)]
     if (len >= 10) {
